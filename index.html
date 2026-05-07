@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Weather App</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 35px;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        input {
+            flex: 1;
+            height: 45px;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            padding-left: 15px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 110px;
+            border: none;
+            border-radius: 10px;
+            background-color: #222;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: black;
+            transform: scale(1.05);
+        }
+
+        .weather-box {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .city-title {
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .temp {
+            text-align: center;
+            font-size: 50px;
+            font-weight: bold;
+        }
+
+        .condition {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .card h3 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .error {
+            text-align: center;
+            color: rgb(241, 9, 9);
+            margin-top: 10px;
+            /* font-weight: bold; */
+        }
+
+        @media(max-width: 500px) {
+            .input-box {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                height: 45px;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🌤 Weather App</h1>
+
+        <div class="input-box">
+            <input type="text" id="city-name" placeholder="Enter city name...">
+            <button id="search-btn">Search</button>
+        </div>
+
+        <p class="error"></p>
+
+        <div class="weather-box">
+
+            <h2 class="city-title"></h2>
+
+            <h1 class="temp"></h1>
+
+            <p class="condition"></p>
+
+            <div class="details">
+
+                <div class="card">
+                    <h3>💨 Wind</h3>
+                    <p class="wind"></p>
+                </div>
+
+                <div class="card">
+                    <h3>🥵 Feels Like</h3>
+                    <p class="feel-like"></p>
+                </div>
+
+                <div class="card">
+                    <h3>💧 Humidity</h3>
+                    <p class="humidity"></p>
+                </div>
+
+                <div class="card">
+                    <h3>🌡 Min Temp</h3>
+                    <p class="min-temp"></p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        let cityName = document.querySelector("#city-name");
+        let btn = document.querySelector("#search-btn");
+
+        let weatherBox = document.querySelector(".weather-box");
+
+        let cityTitle = document.querySelector(".city-title");
+        let temp = document.querySelector(".temp");
+        let condition = document.querySelector(".condition");
+        let wind = document.querySelector(".wind");
+        let feelLike = document.querySelector(".feel-like");
+        let humidity = document.querySelector(".humidity");
+        let minTemp = document.querySelector(".min-temp");
+        let error = document.querySelector(".error");
+
+
+        btn.addEventListener("click", () => {
+
+            let city = cityName.value.trim();
+
+            if (city === "") {
+                error.textContent = "Please enter a city name!";
+                weatherBox.style.display = "none";
+                return;
+            }
+
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=f7bb8450695d7af58983467d89af6ed2&units=metric`)
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    console.log(data);
+
+                    if (data.cod != 200) {
+                        error.textContent = "City not found!";
+                        weatherBox.style.display = "none";
+                        return;
+                    }
+
+                    error.textContent = "";
+
+                    cityTitle.textContent = data.name;
+
+                    temp.textContent = `${Math.round(data.main.temp)}°C`;
+
+                    condition.textContent = data.weather[0].main;
+
+                    wind.textContent = `${data.wind.speed} km/h`;
+
+                    feelLike.textContent = `${Math.round(data.main.feels_like)}°C`;
+
+                    humidity.textContent = `${data.main.humidity}%`;
+
+                    minTemp.textContent = `${Math.round(data.main.temp_min)}°C`;
+
+                    weatherBox.style.display = "flex";
+
+                    cityName.value = "";
+
+                })
+
+                .catch(error => {
+                    console.log(error);
+                });
+
+        });
+
+    </script>
+
+</body>
+
+</html>
